@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+  mysql:
+    container_name: mysql_apt_batch
+    image: mysql/mysql-server:latest
+    environment:
+      MYSQL_PORT_HOST: '%'
+      MYSQL_USER: 'apt'
+      MYSQL_PASSWORD: 'apt'
+      MYSQL_DATABASE: 'apt_batch'
+    ports:
+      - "3308:3306"
+    command:
+      - "mysqld"
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
