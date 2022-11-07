@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class LawdService {
 
@@ -19,6 +18,7 @@ public class LawdService {
      * 데이터가 존재하면 수정, 없으면 생성한다.
      * @param lawd
      */
+    @Transactional
     public void upsert(Lawd lawd) {
         Lawd saved = lawdRepository.findByLawdCd(lawd.getLawdCd()).orElseGet(Lawd::new);
         saved.setLawdCd(lawd.getLawdCd());

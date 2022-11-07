@@ -1,5 +1,6 @@
 package com.dev.be.aptbatch.core.entity;
 
+import com.dev.be.aptbatch.core.dto.AptDealDto;
 import lombok.Data;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "apt")
 @EntityListeners(AuditingEntityListener.class)
 public class Apt {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long aptId;
@@ -39,5 +41,15 @@ public class Apt {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public static Apt from(AptDealDto aptDealDto) {
+        Apt apt = new Apt();
+        apt.setAptName(aptDealDto.getAptName().trim());
+        apt.setJibun(aptDealDto.getJibun().trim());
+        apt.setDong(aptDealDto.getDong().trim());
+        apt.setGuLawdCd(aptDealDto.getRegionalCode().trim());
+        apt.setBuiltYear(aptDealDto.getBuiltYear());
+        return apt;
+    }
 
 }
