@@ -3,6 +3,7 @@ package com.dev.be.aptbatch.job.apt;
 import com.dev.be.aptbatch.adapter.ApartmentApiResource;
 import com.dev.be.aptbatch.core.dto.AptDealDto;
 import com.dev.be.aptbatch.core.repository.LawdRepository;
+import com.dev.be.aptbatch.core.service.AptDealService;
 import com.dev.be.aptbatch.job.validator.YearMonthParameterValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,6 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,14 +38,13 @@ public class AptDealInsertJobConfig {
     @Bean
     public Job aptDealInsertJob(
             Step guLawdCdStep,
-            Step contextPrintStep
-//            Step aptDealInsertStep
+            Step aptDealInsertStep
     ) {
         return jobBuilderFactory.get("aptDealInsertJob")
                 .incrementer(new RunIdIncrementer())
                 .validator(new YearMonthParameterValidator())
                 .start(guLawdCdStep)
-                .on("CONTINUABLE").to(contextPrintStep).next(guLawdCdStep)
+                .on("CONTINUABLE").to(aptDealInsertStep).next(guLawdCdStep)
                 .from(guLawdCdStep)
                 .on("*").end()
                 .end()
@@ -72,17 +71,6 @@ public class AptDealInsertJobConfig {
         return stepBuilderFactory.get("contextPrintStep")
                 .tasklet(contextPrintTasklet)
                 .build();
-    }
-
-    @Bean
-    @StepScope
-    public Tasklet contextPrintTasklet(
-            @Value("#{jobExecutionContext['guLawdCd']}") String guLawdCd
-    ) {
-        return (contribution, chunkContext) -> {
-            System.out.println("[contextPrintStep] guLawdCd = " + guLawdCd);
-            return RepeatStatus.FINISHED;
-        };
     }
 
     @Bean
@@ -123,9 +111,9 @@ public class AptDealInsertJobConfig {
 
     @Bean
     @StepScope
-    public ItemWriter<AptDealDto> aptDealWriter() {
+    public ItemWriter<AptDealDto> aptDealWriter(AptDealService aptDealService) {
         return items -> {
-            items.forEach(System.out::println);
+            items.forEach(aptDealService::upsert);
             System.out.println("==================WRITING COMPLETE==================");
         };
     }
