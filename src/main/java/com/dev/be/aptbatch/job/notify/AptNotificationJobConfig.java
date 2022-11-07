@@ -1,5 +1,6 @@
 package com.dev.be.aptbatch.job.notify;
 
+import com.dev.be.aptbatch.adapter.FakeSendService;
 import com.dev.be.aptbatch.core.dto.AptDto;
 import com.dev.be.aptbatch.core.dto.NotificationDto;
 import com.dev.be.aptbatch.core.entity.AptNotification;
@@ -102,8 +103,8 @@ public class AptNotificationJobConfig {
 
     @Bean
     @StepScope
-    public ItemWriter<NotificationDto> aptNotificationWriter() {
-        return items -> items.forEach(item -> System.out.println(item.toMessage()));
+    public ItemWriter<NotificationDto> aptNotificationWriter(FakeSendService fakeSendService) {
+        return items -> items.forEach(item -> fakeSendService.send(item.getEmail(), item.toMessage()));
     }
 
 }
